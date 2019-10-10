@@ -28,7 +28,7 @@ def genHourlyLoad():
             fl = float([l for l in re.split(':|,| |\n', line)[-6:] if l][2])
             load[dt.hour] = np.append(load[dt.hour], fl)
 
-    plt.boxplot([load[i] for i in range(24)], showfliers=False, labels=range(24))
+    plt.boxplot(load.values(), labels=load.keys()) # showfliers=True
     plt.savefig('load.{}'.format(PLOT_FORMAT))
 
 if __name__ == '__main__':
