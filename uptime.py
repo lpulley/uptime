@@ -2,9 +2,9 @@ import re
 import numpy as np
 from matplotlib import pyplot as plt
 from datetime import datetime
-import subprocess
+from subprocess import run
 
-subprocess.run(['scp', 'raven:uptime.log', '.'])
+run(['scp', 'raven:uptime.log', '.'])
 
 load = {}
 for i in range(24):
