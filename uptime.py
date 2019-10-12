@@ -9,7 +9,8 @@ SSH_HOST = 'raven'
 LOG_NAME = 'uptime.log'
 PLOT_FORMAT = 'png'
 SAMPLES_PER_WEEK = 672
-HISTORY_SMOOTHING = 4
+HISTORY_SMOOTHING_FINE = 4
+HISTORY_SMOOTHING_COARSE = HISTORY_SMOOTHING_FINE * 8
 
 def getLog():
     try:
@@ -39,21 +40,32 @@ def genHourlyLoad(splitLines=None):
 
     plt.figure()
     plt.boxplot(load.values(), labels=load.keys()) # showfliers=True
+    plt.xlabel('hour')
+    plt.ylabel('average load')
     plt.savefig('hourly.{}'.format(PLOT_FORMAT))
 
 def genLoadHistory(splitLines=None):
     if splitLines is None:
         splitLines = genSplitLines()
-    history = np.zeros(SAMPLES_PER_WEEK)
     lines = [float([l for l in line[-6:] if l][2]) for line in splitLines]
+    history_fine = np.zeros(SAMPLES_PER_WEEK)
+    history_coarse = np.zeros(SAMPLES_PER_WEEK)
 
     for i in range(len(lines)):
-        start = max(0, i - HISTORY_SMOOTHING)
-        band = lines[start:i + 1]
-        history[i - len(lines)] = np.mean(band)
+        start_fine = max(0, i - HISTORY_SMOOTHING_FINE)
+        band_fine = lines[start_fine:i + 1]
+        history_fine[i - len(lines)] = np.mean(band_fine)
+        start_coarse = max(0, i - HISTORY_SMOOTHING_COARSE)
+        band_coarse = lines[start_coarse:i + 1]
+        history_coarse[i - len(lines)] = np.mean(band_coarse)
 
     plt.figure()
-    plt.plot(np.arange(0, 7, 7 / SAMPLES_PER_WEEK), history)
+    x = np.arange(7, 0, -7 / SAMPLES_PER_WEEK)
+    plt.plot(x, history_fine, color='#ffcccc')
+    plt.plot(x, history_coarse, color='#ff0000')
+    plt.gca().invert_xaxis()
+    plt.xlabel('days ago')
+    plt.ylabel('average load')
     plt.savefig('history.{}'.format(PLOT_FORMAT))
 
 if __name__ == '__main__':
