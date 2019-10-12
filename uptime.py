@@ -75,7 +75,7 @@ if __name__ == '__main__':
         genHourlyLoad(splitLines)
         genLoadHistory(splitLines)
     else:
-        sys.exit('Couldn\'t access uptime.log over SCP: scp exited with {}'.format(scp_code))
+        sys.exit('Couldn\'t access uptime.log over SCP: scp exited with code {}'.format(scp_code))
 
 
         # COMMENT
