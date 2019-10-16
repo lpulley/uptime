@@ -40,6 +40,7 @@ def genHourlyLoad(splitLines=None):
 
     plt.figure()
     plt.boxplot(load.values(), labels=load.keys()) # showfliers=True
+    plt.title('Load per hour over past 7 days')
     plt.xlabel('hour')
     plt.ylabel('average load')
     plt.savefig('hourly.{}'.format(PLOT_FORMAT))
@@ -64,6 +65,7 @@ def genLoadHistory(splitLines=None):
     plt.plot(x, history_fine, color='#ffcccc')
     plt.plot(x, history_coarse, color='#ff0000')
     plt.gca().invert_xaxis()
+    plt.title('Averaged load over past 7 days')
     plt.xlabel('days ago')
     plt.ylabel('average load')
     plt.savefig('history.{}'.format(PLOT_FORMAT))
