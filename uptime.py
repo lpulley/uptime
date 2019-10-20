@@ -48,7 +48,7 @@ def genHourlyLoad(splitLines=None):
 def genLoadHistory(splitLines=None):
     if splitLines is None:
         splitLines = genSplitLines()
-    lines = [float([l for l in line[-6:] if l][2]) for line in splitLines]
+    lines = [float([l for l in line[-6:] if l][2]) for line in splitLines[-SAMPLES_PER_WEEK:]]
     history_fine = np.zeros(SAMPLES_PER_WEEK)
     history_coarse = np.zeros(SAMPLES_PER_WEEK)
 
