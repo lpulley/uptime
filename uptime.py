@@ -39,7 +39,7 @@ def genHourlyLoad(splitLines=None):
         load[dt.hour] = np.append(load[dt.hour], fl)
 
     plt.figure()
-    plt.boxplot(load.values(), labels=load.keys()) # showfliers=True
+    plt.boxplot(load.values(), labels=load.keys())
     plt.title('Load per hour over past 7 days')
     plt.xlabel('hour')
     plt.ylabel('average load')
