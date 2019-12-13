@@ -8,7 +8,15 @@ import sys
 SSH_HOST = 'raven'
 LOG_NAME = 'uptime.log'
 PLOT_FORMAT = 'png'
-SAMPLES_PER_WEEK = 672
+
+daysInHistory = 30
+try:
+    daysInHistory = int(sys.argv[1])
+except IndexError:
+    pass
+
+SAMPLES_PER_DAY = 96
+SAMPLES_IN_HISTORY = SAMPLES_PER_DAY * daysInHistory
 HISTORY_SMOOTHING_FINE = 4
 HISTORY_SMOOTHING_COARSE = HISTORY_SMOOTHING_FINE * 8
 
@@ -30,8 +38,8 @@ def genHourlyLoad(splitLines=None):
 
     if splitLines is None:
         splitLines = genSplitLines()
-    if len(splitLines) > SAMPLES_PER_WEEK:
-        splitLines = splitLines[-SAMPLES_PER_WEEK:]
+    if len(splitLines) > SAMPLES_IN_HISTORY:
+        splitLines = splitLines[-SAMPLES_IN_HISTORY:]
     for line in splitLines:
         timestamp = ':'.join([l for l in line[:4] if l])
         dt = datetime.strptime(timestamp, '%H:%M:%S')
@@ -40,7 +48,7 @@ def genHourlyLoad(splitLines=None):
 
     plt.figure()
     plt.boxplot(load.values(), labels=load.keys())
-    plt.title('Load per hour over past 7 days')
+    plt.title('Load per hour over past {} days'.format(daysInHistory))
     plt.xlabel('hour')
     plt.ylabel('average load')
     plt.savefig('hourly.{}'.format(PLOT_FORMAT))
@@ -48,9 +56,9 @@ def genHourlyLoad(splitLines=None):
 def genLoadHistory(splitLines=None):
     if splitLines is None:
         splitLines = genSplitLines()
-    lines = [float([l for l in line[-6:] if l][2]) for line in splitLines[-SAMPLES_PER_WEEK:]]
-    history_fine = np.zeros(SAMPLES_PER_WEEK)
-    history_coarse = np.zeros(SAMPLES_PER_WEEK)
+    lines = [float([l for l in line[-6:] if l][2]) for line in splitLines[-SAMPLES_IN_HISTORY:]]
+    history_fine = np.zeros(SAMPLES_IN_HISTORY)
+    history_coarse = np.zeros(SAMPLES_IN_HISTORY)
 
     for i in range(len(lines)):
         start_fine = max(0, i - HISTORY_SMOOTHING_FINE)
@@ -61,11 +69,11 @@ def genLoadHistory(splitLines=None):
         history_coarse[i - len(lines)] = np.mean(band_coarse)
 
     plt.figure()
-    x = np.arange(7, 0, -7 / SAMPLES_PER_WEEK)
+    x = np.arange(daysInHistory, 0, -daysInHistory / SAMPLES_IN_HISTORY)
     plt.plot(x, history_fine, color='#ffcccc')
     plt.plot(x, history_coarse, color='#ff0000')
     plt.gca().invert_xaxis()
-    plt.title('Averaged load over past 7 days')
+    plt.title('Averaged load over past {} days'.format(daysInHistory))
     plt.xlabel('days ago')
     plt.ylabel('average load')
     plt.savefig('history.{}'.format(PLOT_FORMAT))
